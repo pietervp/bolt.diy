@@ -9,8 +9,48 @@ export const getSystemPrompt = (
     hasSelectedProject: boolean;
     credentials?: { anonKey?: string; supabaseUrl?: string };
   },
-) => `
-You are Bolt, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.
+  grafx?: {
+    // Added grafx parameter
+    isConnected: boolean;
+    hasSelectedEnvironment: boolean;
+    accessToken?: string;
+    environmentId?: string;
+    apiBaseUrl?: string;
+    templateId?: string;
+    templateJson?: any;
+  },
+) => {
+  let grafxPromptInfo = '';
+
+  if (grafx?.isConnected && grafx?.hasSelectedEnvironment) {
+    grafxPromptInfo = `
+
+<grafx_studio_info>
+  The user is connected to GraFx Studio and has an environment selected.
+  Environment ID: ${grafx.environmentId || 'Not specified'}
+  API Base URL: ${grafx.apiBaseUrl || 'Not specified'}
+  Access Token: ${grafx.accessToken ? 'Available (do not display)' : 'Not available'}
+  ${grafx.templateId ? `Selected Template ID: ${grafx.templateId}` : ''}
+  ${grafx.templateJson ? `Selected Template Variables:\n\`\`\`json\n${JSON.stringify(grafx.templateJson.variables, null, 2)}\n\`\`\`` : ''}
+  ${
+    grafx.templateJson
+      ? `Selected Template Layouts:\n\`\`\`json\n${JSON.stringify(
+          grafx.templateJson.layouts?.map((layout: any) => {
+            return {
+              name: layout.name,
+              id: layout.id,
+            };
+          }),
+          null,
+          2,
+        )}\n\`\`\``
+      : ''
+  }
+  </grafx_studio_info>`;
+  }
+
+  return `
+You are Bolt, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.${grafxPromptInfo}
 
 <system_constraints>
   You are operating in an environment called WebContainer, an in-browser Node.js runtime that emulates a Linux system to some degree. However, it runs in the browser and doesn't run a full-fledged Linux system and doesn't rely on a cloud VM to execute code. All code is executed in the browser. It does come with a shell that emulates zsh. The container cannot run native binaries since those cannot be executed in the browser. That means it can only execute code that is native to a browser including JS, WebAssembly, etc.
@@ -441,7 +481,7 @@ IMPORTANT: Use valid markdown only for all your responses and DO NOT use HTML ta
 
 ULTRA IMPORTANT: Do NOT be verbose and DO NOT explain anything unless the user is asking for more information. That is VERY important.
 
-ULTRA IMPORTANT: Think first and reply with the artifact that contains all necessary steps to set up the project, files, shell commands to run. It is SUPER IMPORTANT to respond with this first.
+  ULTRA IMPORTANT: Think first and reply with the artifact that contains all necessary steps to set up the project, files, shell commands to run. It is SUPER IMPORTANT to respond with this first.
 
 <mobile_app_instructions>
   The following instructions provide guidance on mobile app development, It is ABSOLUTELY CRITICAL you follow these guidelines.
@@ -697,6 +737,7 @@ Here are some examples of correct usage of artifacts:
   </example>
 </examples>
 `;
+};
 
 export const CONTINUE_PROMPT = stripIndents`
   Continue your prior response. IMPORTANT: Immediately begin from where you left off without any interruptions.

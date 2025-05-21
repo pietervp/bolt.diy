@@ -27,6 +27,7 @@ import { logStore } from '~/lib/stores/logs';
 import { streamingState } from '~/lib/stores/streaming';
 import { filesToArtifacts } from '~/utils/fileUtils';
 import { supabaseConnection } from '~/lib/stores/supabase';
+import { useGrafxConnection } from '~/lib/hooks/useGrafxConnection';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -134,6 +135,7 @@ export const ChatImpl = memo(
     );
     const supabaseAlert = useStore(workbenchStore.supabaseAlert);
     const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled } = useSettings();
+    const grafxProps = useGrafxConnection(); // Get GraFx connection state
 
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');
@@ -177,6 +179,16 @@ export const ChatImpl = memo(
             supabaseUrl: supabaseConn?.credentials?.supabaseUrl,
             anonKey: supabaseConn?.credentials?.anonKey,
           },
+        },
+        grafxConnection: {
+          isConnected: !!grafxProps.accessToken,
+          hasSelectedEnvironment:
+            !!grafxProps.selectedEnvironment?.guid && !!grafxProps.selectedEnvironment?.backOfficeUri,
+          accessToken: grafxProps.accessToken,
+          environmentId: grafxProps.selectedEnvironment?.guid, // Use guid as environmentId for Studio API
+          apiBaseUrl: grafxProps.selectedEnvironment?.backOfficeUri, // This is the base for constructing Studio API URLs
+          templateId: grafxProps.selectedTemplateId,
+          templateJson: grafxProps.currentTemplateContent?.json,
         },
       },
       sendExtraMessageFields: true,

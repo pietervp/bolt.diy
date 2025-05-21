@@ -1,9 +1,38 @@
 import type { PromptOptions } from '~/lib/common/prompt-library';
 
 export default (options: PromptOptions) => {
-  const { cwd, allowedHtmlElements, supabase } = options;
+  const { cwd, allowedHtmlElements, supabase, grafx } = options; // Added grafx
+  let grafxPromptInfo = '';
+
+  if (grafx?.isConnected && grafx?.hasSelectedEnvironment) {
+    grafxPromptInfo = `
+
+<grafx_studio_info>
+  The user is connected to GraFx Studio and has an environment selected.
+  Environment ID: ${grafx.environmentId || 'Not specified'}
+  API Base URL: ${grafx.apiBaseUrl || 'Not specified'}
+  Access Token: ${grafx.accessToken ? 'Available (do not display)' : 'Not available'}
+  ${grafx.templateId ? `Selected Template ID: ${grafx.templateId}` : ''}
+  ${grafx.templateJson ? `Selected Template Variables:\n\`\`\`json\n${JSON.stringify(grafx.templateJson.variables, null, 2)}\n\`\`\`` : ''}
+  ${
+    grafx.templateJson
+      ? `Selected Template Layouts:\n\`\`\`json\n${JSON.stringify(
+          grafx.templateJson.layouts?.map((layout: any) => {
+            return {
+              name: layout.name,
+              id: layout.id,
+            };
+          }),
+          null,
+          2,
+        )}\n\`\`\``
+      : ''
+  }
+</grafx_studio_info>`;
+  }
+
   return `
-You are Bolt, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.
+You are Bolt, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.${grafxPromptInfo}
 
 <system_constraints>
   - Operating in WebContainer, an in-browser Node.js runtime
