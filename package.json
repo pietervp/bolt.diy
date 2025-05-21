@@ -13,7 +13,7 @@
   "scripts": {
     "deploy": "npm run build && wrangler pages deploy",
     "build": "remix vite:build",
-    "dev": "node pre-start.cjs  && remix vite:dev",
+    "dev": "node pre-start.cjs  && remix vite:dev --port 3000",
     "test": "vitest --run",
     "test:watch": "vitest",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app",
@@ -71,6 +71,7 @@
     "@heroicons/react": "^2.2.0",
     "@iconify-json/svg-spinners": "^1.2.1",
     "@lezer/highlight": "^1.2.1",
+    "@nanostores/persistent": "^1.0.0",
     "@nanostores/react": "^0.7.3",
     "@octokit/rest": "^21.0.2",
     "@octokit/types": "^13.6.2",

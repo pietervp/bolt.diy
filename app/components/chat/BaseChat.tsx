@@ -39,6 +39,8 @@ import type { ActionRunner } from '~/lib/runtime/action-runner';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import { SupabaseChatAlert } from '~/components/chat/SupabaseAlert';
 import { SupabaseConnection } from './SupabaseConnection';
+import { GrafxConnection } from './GrafxConnection'; // Added import
+import { GrafxSelectionToolbar } from './GrafxSelectionToolbar'; // Import the new toolbar
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { useStore } from '@nanostores/react';
@@ -48,6 +50,7 @@ const TEXTAREA_MIN_HEIGHT = 76;
 
 interface BaseChatProps {
   textareaRef?: React.RefObject<HTMLTextAreaElement> | undefined;
+  showModelSelector?: boolean;
   messageRef?: RefCallback<HTMLDivElement> | undefined;
   scrollRef?: RefCallback<HTMLDivElement> | undefined;
   showChat?: boolean;
@@ -89,6 +92,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     {
       textareaRef,
       showChat = true,
+      showModelSelector = false,
       chatStarted = false,
       isStreaming = false,
       onStreamingChange,
@@ -406,6 +410,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 </div>
                 <ScrollToBottom />
                 {progressAnnotations && <ProgressCompilation data={progressAnnotations} />}
+                {/* GraFx Selection Toolbar */}
+                <ClientOnly>{() => <GrafxSelectionToolbar />}</ClientOnly>
                 <div
                   className={classNames(
                     'relative bg-bolt-elements-background-depth-2 p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
@@ -444,34 +450,36 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
                   </svg>
                   <div>
-                    <ClientOnly>
-                      {() => (
-                        <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
-                          <ModelSelector
-                            key={provider?.name + ':' + modelList.length}
-                            model={model}
-                            setModel={setModel}
-                            modelList={modelList}
-                            provider={provider}
-                            setProvider={setProvider}
-                            providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
-                            apiKeys={apiKeys}
-                            modelLoading={isModelLoading}
-                          />
-                          {(providerList || []).length > 0 &&
-                            provider &&
-                            (!LOCAL_PROVIDERS.includes(provider.name) || 'OpenAILike') && (
-                              <APIKeyManager
-                                provider={provider}
-                                apiKey={apiKeys[provider.name] || ''}
-                                setApiKey={(key) => {
-                                  onApiKeysChange(provider.name, key);
-                                }}
-                              />
-                            )}
-                        </div>
-                      )}
-                    </ClientOnly>
+                    {showModelSelector && (
+                      <ClientOnly>
+                        {() => (
+                          <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
+                            <ModelSelector
+                              key={provider?.name + ':' + modelList.length}
+                              model={model}
+                              setModel={setModel}
+                              modelList={modelList}
+                              provider={provider}
+                              setProvider={setProvider}
+                              providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
+                              apiKeys={apiKeys}
+                              modelLoading={isModelLoading}
+                            />
+                            {(providerList || []).length > 0 &&
+                              provider &&
+                              (!LOCAL_PROVIDERS.includes(provider.name) || 'OpenAILike') && (
+                                <APIKeyManager
+                                  provider={provider}
+                                  apiKey={apiKeys[provider.name] || ''}
+                                  setApiKey={(key) => {
+                                    onApiKeysChange(provider.name, key);
+                                  }}
+                                />
+                              )}
+                          </div>
+                        )}
+                      </ClientOnly>
+                    )}
                   </div>
                   <FilePreview
                     files={uploadedFiles}
@@ -563,7 +571,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         minHeight: TEXTAREA_MIN_HEIGHT,
                         maxHeight: TEXTAREA_MAX_HEIGHT,
                       }}
-                      placeholder="How can Bolt help you today?"
+                      placeholder="How can GraFx Genie help you today?"
                       translate="no"
                     />
                     <ClientOnly>
@@ -635,7 +643,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           a new line
                         </div>
                       ) : null}
-                      <SupabaseConnection />
+                      <div className="flex items-center gap-2">
+                        {' '}
+                        {/* Added a flex container for alignment */}
+                        <SupabaseConnection />
+                        <GrafxConnection />
+                      </div>
                       <ExpoQrModal open={qrModalOpen} onClose={() => setQrModalOpen(false)} />
                     </div>
                   </div>

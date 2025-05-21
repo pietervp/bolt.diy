@@ -11,6 +11,7 @@ import { NetlifyDeploymentLink } from '~/components/chat/NetlifyDeploymentLink.c
 import { VercelDeploymentLink } from '~/components/chat/VercelDeploymentLink.client';
 import { useVercelDeploy } from '~/components/deploy/VercelDeploy.client';
 import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
+import { GrafxConnection } from '~/components/chat/GrafxConnection'; // Added import
 
 interface HeaderActionButtonsProps {}
 
@@ -68,7 +69,12 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   };
 
   return (
-    <div className="flex">
+    <div className="flex items-center">
+      {' '}
+      {/* Added items-center for vertical alignment if needed */}
+      {/* GraFx Connection Button */}
+      <GrafxConnection />
+      {/* Deploy Button Group */}
       <div className="relative" ref={dropdownRef}>
         <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden mr-2 text-sm">
           <Button

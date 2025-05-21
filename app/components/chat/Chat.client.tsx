@@ -35,7 +35,7 @@ const toastAnimation = cssTransition({
 
 const logger = createScopedLogger('Chat');
 
-export function Chat() {
+export function Chat({ showModelSelector }: { showModelSelector?: boolean }) {
   renderLogger.trace('Chat');
 
   const { ready, initialMessages, storeMessageHistory, importChat, exportChat } = useChatHistory();
@@ -53,6 +53,7 @@ export function Chat() {
           exportChat={exportChat}
           storeMessageHistory={storeMessageHistory}
           importChat={importChat}
+          showModelSelector={showModelSelector}
         />
       )}
       <ToastContainer
@@ -111,17 +112,18 @@ interface ChatProps {
   importChat: (description: string, messages: Message[]) => Promise<void>;
   exportChat: () => void;
   description?: string;
+  showModelSelector?: boolean;
 }
 
 export const ChatImpl = memo(
-  ({ description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
+  ({ description, initialMessages, storeMessageHistory, importChat, exportChat, showModelSelector }: ChatProps) => {
     useShortcuts();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [imageDataList, setImageDataList] = useState<string[]>([]);
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const [fakeLoading, setFakeLoading] = useState(false);
     const files = useStore(workbenchStore.files);
     const actionAlert = useStore(workbenchStore.alert);
@@ -216,7 +218,7 @@ export const ChatImpl = memo(
       // console.log(prompt, searchParams, model, provider);
 
       if (prompt) {
-        setSearchParams({});
+        // Removed clearing of searchParams to keep chat view persistent
         runAnimation();
         append({
           role: 'user',
@@ -564,6 +566,7 @@ export const ChatImpl = memo(
         deployAlert={deployAlert}
         clearDeployAlert={() => workbenchStore.clearDeployAlert()}
         data={chatData}
+        showModelSelector={showModelSelector}
       />
     );
   },
