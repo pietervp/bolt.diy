@@ -39,7 +39,14 @@ export function useGrafxConnection() {
     'VITE_GRAFX_AUTH0_REDIRECT_URI',
     `${window.location.origin}/.auth/login/auth0/callback`,
   );
-  const GRAFX_AUTH0_API_AUDIENCE = getGrafxEnvVar('VITE_GRAFX_AUTH0_API_AUDIENCE', ''); // Ensure this is correctly set for Platform & Studio APIs
+  const GRAFX_AUTH0_API_AUDIENCE = getGrafxEnvVar('GRAFX_AUTH0_API_AUDIENCE', ''); // Ensure this is correctly set for Platform & Studio APIs
+
+  console.log('Grafx Auth0 configuration:', {
+    GRAFX_AUTH0_DOMAIN,
+    GRAFX_AUTH0_CLIENT_ID,
+    GRAFX_AUTH0_REDIRECT_URI,
+    GRAFX_AUTH0_API_AUDIENCE,
+  });
 
   const initiateLogin = useCallback(() => {
     grafxStore.setKey('isLoading', true);
